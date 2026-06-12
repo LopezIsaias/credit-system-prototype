@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Créditos Selva — Prototipo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700&family=Archivo:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --verde:#0E3B2E; --verde-2:#14543F; --verde-suave:#E7EFE9;
+  --papel:#F7F5EE; --blanco:#FFFFFF; --tinta:#19201B; --gris:#6C7570;
+  --linea:#E2DFD3; --oro:#C2922A; --oro-suave:#F6ECD6;
+  --barro:#B4452B; --barro-suave:#F7E5DF;
+  --display:'Bricolage Grotesque',sans-serif; --body:'Archivo',sans-serif; --mono:'Spline Sans Mono',monospace;
+  --radio:14px; --sombra:0 1px 3px rgba(20,30,24,.08),0 6px 18px rgba(20,30,24,.06);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(--body);background:#DDD9CC;color:var(--tinta);font-size:15px;line-height:1.45}
+#app{max-width:430px;margin:0 auto;min-height:100dvh;background:var(--papel);position:relative;display:flex;flex-direction:column;box-shadow:0 0 40px rgba(0,0,0,.18)}
+@media(min-width:480px){#app{min-height:96dvh;margin:2dvh auto;border-radius:28px;overflow:hidden}}
+
+/* ---------- Cabecera ---------- */
+header{background:var(--verde);color:#F3F1E7;padding:14px 16px 12px;position:sticky;top:0;z-index:30}
+.h-fila{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.marca{font-family:var(--display);font-weight:700;font-size:17px;letter-spacing:.2px;display:flex;align-items:center;gap:8px}
+.marca .sol{width:26px;height:26px;border-radius:50%;background:var(--oro);color:var(--verde);display:grid;place-items:center;font-family:var(--mono);font-size:12px;font-weight:600}
+.rol{font-family:var(--mono);font-size:10.5px;letter-spacing:.6px;border:1px solid rgba(243,241,231,.4);border-radius:99px;padding:5px 10px;background:transparent;color:#F3F1E7;cursor:pointer}
+.rol.superadmin{background:var(--oro);border-color:var(--oro);color:var(--verde);font-weight:600}
+.h-sub{font-size:12px;opacity:.75;margin-top:3px}
+.proto-banda{background:var(--oro);color:var(--verde);font-family:var(--mono);font-size:10px;letter-spacing:1.2px;text-align:center;padding:4px}
+
+/* ---------- Contenido ---------- */
+main{flex:1;overflow-y:auto;padding:16px 16px 90px}
+.screen{display:none}.screen.activa{display:block;animation:apar .18s ease}
+@keyframes apar{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.screen.activa{animation:none}}
+h2{font-family:var(--display);font-size:21px;font-weight:700;margin-bottom:4px}
+.sub{color:var(--gris);font-size:13px;margin-bottom:14px}
+h3{font-family:var(--display);font-size:15px;font-weight:600;margin:18px 0 8px}
+
+.tarjeta{background:var(--blanco);border:1px solid var(--linea);border-radius:var(--radio);padding:14px;box-shadow:var(--sombra);margin-bottom:10px}
+.tarjeta.tap{cursor:pointer}
+.tarjeta.tap:active{transform:scale(.99)}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
+.kpi{background:var(--blanco);border:1px solid var(--linea);border-radius:var(--radio);padding:12px;box-shadow:var(--sombra)}
+.kpi.verde{background:var(--verde);border-color:var(--verde);color:#F3F1E7}
+.kpi .et{font-size:11.5px;color:var(--gris);letter-spacing:.2px}
+.kpi.verde .et{color:rgba(243,241,231,.75)}
+.kpi .num{font-family:var(--mono);font-size:20px;font-weight:600;margin-top:2px}
+
+/* Filas de lista */
+.fila{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.fila .izq{min-width:0}
+.fila .nom{font-weight:600;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fila .det{font-size:12.5px;color:var(--gris);margin-top:2px}
+.fila .monto{font-family:var(--mono);font-weight:600;font-size:14.5px;text-align:right;white-space:nowrap}
+.fila .monto small{display:block;font-size:10.5px;color:var(--gris);font-weight:400}
+
+/* Chips y estados */
+.chip{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.5px;padding:3px 8px;border-radius:99px;border:1px solid transparent}
+.c-prestamo{background:var(--verde-suave);color:var(--verde-2)}
+.c-moto{background:var(--oro-suave);color:#8A6512}
+.c-terreno{background:#E8E9F2;color:#3D4470}
+.c-activo{background:var(--verde-suave);color:var(--verde-2)}
+.c-recuperado{background:var(--barro-suave);color:var(--barro)}
+.c-completado{background:#EEEDE6;color:var(--gris)}
+.c-disponible{background:var(--verde-suave);color:var(--verde-2)}
+.c-encontrato{background:var(--oro-suave);color:#8A6512}
+.c-reparacion{background:var(--barro-suave);color:var(--barro)}
+.c-vencehoy{background:var(--oro);color:var(--verde);font-weight:600}
+
+/* Botones */
+.btn{display:block;width:100%;border:0;border-radius:12px;padding:13px;font-family:var(--body);font-weight:600;font-size:14.5px;cursor:pointer;text-align:center}
+.btn:focus-visible,.rol:focus-visible,.tab:focus-visible{outline:2px solid var(--oro);outline-offset:2px}
+.btn-verde{background:var(--verde);color:#F3F1E7}
+.btn-oro{background:var(--oro);color:var(--verde)}
+.btn-linea{background:transparent;border:1.5px solid var(--linea);color:var(--tinta)}
+.btn-mini{width:auto;padding:8px 14px;font-size:13px;display:inline-block}
+
+/* Volver */
+.volver{background:none;border:0;color:var(--verde-2);font-family:var(--body);font-weight:600;font-size:13.5px;cursor:pointer;padding:0;margin-bottom:12px}
+
+/* Buscador y filtros */
+.buscador{width:100%;border:1.5px solid var(--linea);border-radius:12px;padding:11px 14px;font-family:var(--body);font-size:14px;background:var(--blanco);margin-bottom:12px}
+.filtros{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.ftr{border:1.5px solid var(--linea);background:var(--blanco);border-radius:99px;padding:6px 12px;font-size:12.5px;font-family:var(--body);cursor:pointer;color:var(--gris)}
+.ftr.on{background:var(--verde);border-color:var(--verde);color:#F3F1E7;font-weight:600}
+
+/* Tabla cronograma */
+.tabla{width:100%;border-collapse:collapse;font-size:12.5px}
+.tabla th{text-align:left;color:var(--gris);font-weight:500;padding:6px 4px;border-bottom:1px solid var(--linea);font-size:11px;letter-spacing:.3px}
+.tabla td{padding:7px 4px;border-bottom:1px solid #EFEDE4}
+.tabla .num{font-family:var(--mono);text-align:right}
+.pagada{color:var(--verde-2)}.pendiente{color:var(--gris)}
+
+/* Comprobante: elemento firma */
+.comprobante{background:var(--blanco);font-family:var(--mono);font-size:12.5px;margin:14px 0;border-radius:4px;box-shadow:var(--sombra);position:relative;
+  -webkit-mask:radial-gradient(circle at 8px 0,transparent 7px,#000 7.5px) -8px 0/16px 100%, linear-gradient(#000,#000);
+  -webkit-mask-composite:source-over;
+  mask:radial-gradient(circle 7px at 8px top,transparent 98%,#000) -8px 0/16px 51% repeat-x,
+       radial-gradient(circle 7px at 8px bottom,transparent 98%,#000) -8px 100%/16px 51% repeat-x}
+.comp-in{padding:20px 18px}
+.comp-cab{text-align:center;border-bottom:1px dashed #C9C5B6;padding-bottom:10px;margin-bottom:10px}
+.comp-cab .t{font-weight:600;font-size:13.5px;letter-spacing:1px}
+.comp-cab .n{font-size:15px;font-weight:600;color:var(--verde-2);margin-top:4px}
+.comp-l{display:flex;justify-content:space-between;gap:12px;padding:3px 0}
+.comp-l span:first-child{color:var(--gris)}
+.comp-tot{border-top:1px dashed #C9C5B6;margin-top:10px;padding-top:10px;display:flex;justify-content:space-between;font-weight:600;font-size:14px}
+.comp-pie{text-align:center;color:var(--gris);font-size:10px;margin-top:12px;border-top:1px dashed #C9C5B6;padding-top:10px}
+
+/* Auditoría */
+.aud{font-family:var(--mono);font-size:11px;background:var(--blanco);border:1px solid var(--linea);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.aud .acc{font-weight:600;font-size:11.5px;color:var(--tinta)}
+.aud .meta{color:var(--gris);margin-top:3px}
+.aud .hash{color:#9A8FB8;margin-top:4px;word-break:break-all;font-size:10px}
+.candado{text-align:center;padding:26px 18px;color:var(--gris)}
+.candado .ic{font-size:30px;margin-bottom:8px}
+
+/* Aviso */
+.aviso{background:var(--oro-suave);border:1px solid #E8D6A8;border-radius:10px;padding:10px 12px;font-size:12.5px;color:#6E5310;margin-bottom:12px}
+
+/* Línea de tiempo del bien */
+.ciclo{border-left:2px solid var(--linea);margin-left:7px;padding-left:16px;position:relative;padding-bottom:14px}
+.ciclo::before{content:'';position:absolute;left:-6px;top:3px;width:10px;height:10px;border-radius:50%;background:var(--linea)}
+.ciclo.activo::before{background:var(--oro)}
+.ciclo.rec::before{background:var(--barro)}
+.ciclo .ct{font-weight:600;font-size:13.5px}
+.ciclo .cd{font-size:12px;color:var(--gris);margin-top:2px}
+
+/* Modal */
+.velo{position:fixed;inset:0;background:rgba(15,25,19,.45);display:none;z-index:50;align-items:flex-end;justify-content:center}
+.velo.abierto{display:flex}
+.modal{background:var(--papel);width:100%;max-width:430px;border-radius:22px 22px 0 0;padding:20px 18px 26px;animation:sube .22s ease}
+@keyframes sube{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
+@media(prefers-reduced-motion:reduce){.modal{animation:none}}
+.modal h3{margin-top:0}
+.campo{margin-bottom:12px}
+.campo label{display:block;font-size:12.5px;color:var(--gris);margin-bottom:5px}
+.campo input{width:100%;border:1.5px solid var(--linea);border-radius:10px;padding:11px;font-family:var(--mono);font-size:15px;background:var(--blanco)}
+.check{display:flex;align-items:center;gap:10px;background:var(--blanco);border:1.5px solid var(--linea);border-radius:10px;padding:11px;margin-bottom:12px;font-size:13.5px}
+.check input{width:18px;height:18px;accent-color:var(--verde)}
+
+/* Navegación inferior */
+nav{position:fixed;bottom:0;left:0;right:0;max-width:430px;margin:0 auto;background:var(--blanco);border-top:1px solid var(--linea);display:flex;z-index:40;padding-bottom:env(safe-area-inset-bottom)}
+@media(min-width:480px){nav{position:sticky;bottom:0}}
+.tab{flex:1;border:0;background:none;padding:9px 2px 8px;font-family:var(--body);font-size:10.5px;color:var(--gris);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+.tab .ic{font-size:18px;line-height:1}
+.tab.on{color:var(--verde);font-weight:600}
+.tab.on .ic{transform:translateY(-1px)}
+
+.reporte-linea{display:flex;justify-content:space-between;padding:7px 0;font-size:13px;border-bottom:1px solid #EFEDE4}
+.reporte-linea.total{font-weight:700;border-bottom:0;padding-top:10px;font-size:14px}
+.reporte-linea .v{font-family:var(--mono)}
+.neg{color:var(--barro)}.pos{color:var(--verde-2)}
+.vacio{text-align:center;color:var(--gris);font-size:13px;padding:24px 10px}
+</style>
+</head>
+<body>
+<div id="app">
+<div class="proto-banda">PROTOTIPO · DATOS DE DEMOSTRACIÓN</div>
+<header>
+  <div class="h-fila">
+    <div class="marca"><span class="sol">S/</span> Créditos Selva</div>
+    <button class="rol" id="btnRol" onclick="cambiarRol()" title="Cambiar rol (demo)">ADMIN</button>
+  </div>
+  <div class="h-sub" id="hSub">Viernes 12 de junio, 2026 · Yurimaguas</div>
+</header>
+<main id="main"></main>
+<nav>
+  <button class="tab on" data-s="inicio" onclick="ir('inicio')"><span class="ic">⌂</span>Inicio</button>
+  <button class="tab" data-s="clientes" onclick="ir('clientes')"><span class="ic">◉</span>Clientes</button>
+  <button class="tab" data-s="contratos" onclick="ir('contratos')"><span class="ic">▤</span>Contratos</button>
+  <button class="tab" data-s="bienes" onclick="ir('bienes')"><span class="ic">⛟</span>Bienes</button>
+  <button class="tab" data-s="reportes" onclick="ir('reportes')"><span class="ic">∿</span>Reportes</button>
+</nav>
+<div class="velo" id="velo" onclick="if(event.target===this)cerrarModal()"><div class="modal" id="modal"></div></div>
+</div>
+<script>
+/* ================= DATOS DE DEMOSTRACIÓN ================= */
+const HOY = '12/06/2026';
+let rol = 'admin';
+let cobradoHoy = 0;
+let nextRec = 124;
+
+const CLIENTES = [
+ {id:1,nom:'María Tuanama Sangama',dni:'45871236',tel:'942 318 754',dir:'Jr. Libertad 234'},
+ {id:2,nom:'Jorge Pinedo Ruiz',dni:'41209877',tel:'961 245 880',dir:'Av. M. Castilla 1120'},
+ {id:3,nom:'Rosa Cahuaza Murayari',dni:'47755210',tel:'945 662 102',dir:'Sector Munichis'},
+ {id:4,nom:'Elvis Ramírez Tapullima',dni:'43887145',tel:'921 540 336',dir:'Calle Comercio 87'},
+ {id:5,nom:'Carmen Isuiza Pacaya',dni:'46120988',tel:'939 870 412',dir:'Jr. Sgto. Lores 510'},
+ {id:6,nom:'Wilder Saboya Flores',dni:'42664501',tel:'917 220 845',dir:'AA.HH. La Loma Mz. B'}
+];
+
+const BIENES = [
+ {id:'B-01',tipo:'Mototaxi',desc:'Bajaj Torito 4T · azul',placa:'MX-4821',costo:6200,estado:'En contrato'},
+ {id:'B-02',tipo:'Moto',desc:'Honda Cargo 150 · roja',placa:'MW-9034',costo:5400,estado:'Disponible'},
+ {id:'T-01',tipo:'Terreno',desc:'Lote 120 m² · Munichis Mz. C Lt. 14',placa:'P.E. 11042587',costo:8000,estado:'En contrato'}
+];
+
+const CONTRATOS = [
+ {id:'C-001',tipo:'prestamo',cli:2,monto:2000,interesTotal:600,total:2600,cuota:433,nCuotas:6,pagadas:4,frec:'Mensual',inicio:'10/02/2026',prox:'10/07/2026',estado:'Activo',legal:50,
+  crono:[['1','10/03/26',433,'Pagada'],['2','10/04/26',433,'Pagada'],['3','10/05/26',433,'Pagada'],['4','10/06/26',433,'Pagada'],['5','10/07/26',433,'Pendiente'],['6','10/08/26',435,'Pendiente']]},
+ {id:'C-002',tipo:'moto',cli:1,bien:'B-01',monto:7800,cuota:30,nCuotas:260,pagadas:72,frec:'Diaria',inicio:'01/04/2026',prox:HOY,estado:'Activo',legal:0,ciclo:3},
+ {id:'C-003',tipo:'moto',cli:4,bien:'B-01',monto:7500,cuota:30,nCuotas:250,pagadas:84,frec:'Diaria',inicio:'15/03/2025',fin:'10/06/2025',estado:'Recuperado',legal:0,ciclo:1},
+ {id:'C-006',tipo:'moto',cli:6,bien:'B-01',monto:7600,cuota:30,nCuotas:254,pagadas:118,frec:'Diaria',inicio:'01/08/2025',fin:'02/12/2025',estado:'Recuperado',legal:0,ciclo:2},
+ {id:'C-004',tipo:'terreno',cli:3,bien:'T-01',monto:12000,interesTotal:0,total:12000,cuota:500,nCuotas:24,pagadas:9,frec:'Mensual',inicio:'05/09/2025',prox:'05/07/2026',estado:'Activo',legal:80},
+ {id:'C-005',tipo:'prestamo',cli:5,monto:800,interesTotal:120,total:920,cuota:184,nCuotas:5,pagadas:3,frec:'Quincenal',inicio:'17/04/2026',prox:HOY,estado:'Activo',legal:0,
+  crono:[['1','01/05/26',184,'Pagada'],['2','16/05/26',184,'Pagada'],['3','31/05/26',184,'Pagada'],['4','12/06/26',184,'Vence hoy'],['5','27/06/26',184,'Pendiente']]}
+];
+
+const GASTOS = [
+ {bien:'B-01',con:'C-003',desc:'Reparación de frenos y llanta',monto:180,fecha:'18/06/2025'},
+ {bien:'B-01',con:'C-006',desc:'Afinamiento de motor y pintura',monto:350,fecha:'09/12/2025'},
+ {con:'C-001',desc:'Legalización de documentos',monto:50,fecha:'10/02/2026'},
+ {con:'C-004',desc:'Legalización de documentos',monto:80,fecha:'05/09/2025'}
+];
+
+const COMPROBANTES = [
+ {n:'REC-000123',con:'C-001',monto:433,fecha:'10/06/2026',concepto:'Cuota 4 de 6'},
+ {n:'REC-000122',con:'C-004',monto:500,fecha:'05/06/2026',concepto:'Cuota 9 de 24'},
+ {n:'REC-000121',con:'C-002',monto:30,fecha:'11/06/2026',concepto:'Pago diario · día 72'}
+];
+
+const AUDITORIA = [
+ {ts:'11/06/2026 17:42',user:'admin',acc:'PAGO REGISTRADO',det:'C-002 · S/ 30.00 · REC-000121',hash:'7f3a1c…e88d'},
+ {ts:'10/06/2026 10:05',user:'admin',acc:'PAGO REGISTRADO',det:'C-001 · S/ 433.00 · REC-000123',hash:'b91e44…2a07'},
+ {ts:'05/06/2026 09:21',user:'admin',acc:'PAGO REGISTRADO',det:'C-004 · S/ 500.00 · REC-000122',hash:'30c8f2…91bd'},
+ {ts:'01/04/2026 11:30',user:'superadmin',acc:'CONTRATO CREADO',det:'C-002 · Moto B-01 · ciclo 3 · María Tuanama',hash:'d4a07b…66c1'},
+ {ts:'09/12/2025 16:12',user:'admin',acc:'GASTO REGISTRADO',det:'B-01 · Reparación · S/ 350.00',hash:'9e51aa…04f7'},
+ {ts:'02/12/2025 18:40',user:'superadmin',acc:'BIEN RECUPERADO',det:'B-01 · C-006 · 118 días pagados retenidos',hash:'15bc09…dd3e'}
+];
+
+/* ================= UTILIDADES ================= */
+const S = n => 'S/ ' + n.toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
+const cli = id => CLIENTES.find(c=>c.id===id);
+const con = id => CONTRATOS.find(c=>c.id===id);
+const bien = id => BIENES.find(b=>b.id===id);
+const tipoChip = t => t==='prestamo' ? '<span class="chip c-prestamo">PRÉSTAMO</span>' : t==='moto' ? '<span class="chip c-moto">MOTO</span>' : '<span class="chip c-terreno">TERRENO</span>';
+const estChip = e => '<span class="chip c-'+e.toLowerCase().replace(' ','')+'">'+e.toUpperCase()+'</span>';
+const saldo = c => c.tipo==='moto' ? c.monto - c.pagadas*c.cuota : c.total - c.pagadas*c.cuota;
+const cobrado = c => c.pagadas*c.cuota;
+const M = document.getElementById('main');
+let pila = [];
+
+function ir(s, push){
+ if(!push) pila = [];
+ document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on', t.dataset.s===s));
+ ({inicio:rInicio,clientes:rClientes,contratos:rContratos,bienes:rBienes,reportes:rReportes})[s]();
+ M.scrollTo(0,0); window.scrollTo(0,0);
+}
+function volver(){ const f = pila.pop(); f ? f() : ir('inicio'); }
+function apilar(fn){ pila.push(fn); }
+
+function cambiarRol(){
+ rol = rol==='admin' ? 'superadmin' : 'admin';
+ const b = document.getElementById('btnRol');
+ b.textContent = rol.toUpperCase();
+ b.classList.toggle('superadmin', rol==='superadmin');
+ if(document.querySelector('[data-scr="reportes"]')) rReportes();
+}
+
+/* ================= PANTALLAS ================= */
+function rInicio(){
+ const hoyL = CONTRATOS.filter(c=>c.estado==='Activo' && c.prox===HOY);
+ const porCobrarHoy = hoyL.reduce((s,c)=>s+c.cuota,0);
+ const cartera = CONTRATOS.filter(c=>c.estado==='Activo').reduce((s,c)=>s+saldo(c),0);
+ M.innerHTML = `<section class="screen activa">
+  <h2>Buen día 👋</h2><div class="sub">Resumen del negocio al ${HOY}</div>
+  <div class="kpis">
+   <div class="kpi verde"><div class="et">Por cobrar hoy</div><div class="num">${S(porCobrarHoy)}</div></div>
+   <div class="kpi"><div class="et">Cobrado hoy</div><div class="num">${S(cobradoHoy)}</div></div>
+   <div class="kpi"><div class="et">Cartera activa</div><div class="num">${S(cartera)}</div></div>
+   <div class="kpi"><div class="et">Contratos activos</div><div class="num">${CONTRATOS.filter(c=>c.estado==='Activo').length}</div></div>
+  </div>
+  <h3>Cobranza de hoy</h3>
+  ${hoyL.map(c=>`<div class="tarjeta tap" onclick="vContrato('${c.id}',rInicio)"><div class="fila">
+    <div class="izq"><div class="nom">${cli(c.cli).nom}</div><div class="det">${c.id} · ${tipoChip(c.tipo)} <span class="chip c-vencehoy">VENCE HOY</span></div></div>
+    <div class="monto">${S(c.cuota)}<small>${c.frec.toLowerCase()}</small></div></div></div>`).join('')}
+  <h3>Actividad reciente</h3>
+  ${COMPROBANTES.slice(0,3).map(r=>`<div class="tarjeta tap" onclick="vComprobante('${r.n}',rInicio)"><div class="fila">
+    <div class="izq"><div class="nom">${r.n}</div><div class="det">${cli(con(r.con).cli).nom} · ${r.fecha}</div></div>
+    <div class="monto">${S(r.monto)}</div></div></div>`).join('')}
+ </section>`;
+}
+
+function rClientes(filtro='', escribiendo){
+ const f = filtro.toLowerCase();
+ const lista = CLIENTES.filter(c=>c.nom.toLowerCase().includes(f)||c.dni.includes(f));
+ M.innerHTML = `<section class="screen activa">
+  <h2>Clientes</h2><div class="sub">${CLIENTES.length} registrados</div>
+  <input class="buscador" placeholder="Buscar por nombre o DNI…" value="${filtro}" oninput="rClientes(this.value,true)">
+  ${lista.map(c=>{const cs=CONTRATOS.filter(x=>x.cli===c.id&&x.estado==='Activo');
+   return `<div class="tarjeta tap" onclick="vCliente(${c.id})"><div class="fila">
+    <div class="izq"><div class="nom">${c.nom}</div><div class="det">DNI ${c.dni} · ${cs.length} contrato(s) activo(s)</div></div>
+    <div class="monto">${cs.length?S(cs.reduce((s,x)=>s+saldo(x),0)):'—'}<small>saldo</small></div></div></div>`}).join('')||'<div class="vacio">Sin resultados</div>'}
+ </section>`;
+ if(escribiendo){const b=M.querySelector('.buscador');b.focus();b.setSelectionRange(b.value.length,b.value.length);}
+}
+
+function vCliente(id){
+ apilar(rClientes);
+ const c = cli(id), cs = CONTRATOS.filter(x=>x.cli===id);
+ M.innerHTML = `<section class="screen activa">
+  <button class="volver" onclick="volver()">← Volver</button>
+  <h2>${c.nom}</h2><div class="sub">DNI ${c.dni} · ${c.tel} · ${c.dir}</div>
+  <h3>Sus contratos</h3>
+  ${cs.map(x=>`<div class="tarjeta tap" onclick="vContrato('${x.id}',()=>vCliente(${id}))"><div class="fila">
+   <div class="izq"><div class="nom">${x.id} ${tipoChip(x.tipo)}</div><div class="det">${estChip(x.estado)} · inicio ${x.inicio}</div></div>
+   <div class="monto">${x.estado==='Activo'?S(saldo(x)):S(cobrado(x))}<small>${x.estado==='Activo'?'saldo':'cobrado'}</small></div></div></div>`).join('')}
+ </section>`;
+}
+
+function rContratos(filtro='todos'){
+ const tipos = {todos:'Todos',prestamo:'Préstamos',moto:'Motos',terreno:'Terrenos'};
+ const lista = CONTRATOS.filter(c=>filtro==='todos'||c.tipo===filtro);
+ M.innerHTML = `<section class="screen activa">
+  <h2>Contratos</h2><div class="sub">Préstamos, motos y terrenos en un solo lugar</div>
+  <div class="filtros">${Object.entries(tipos).map(([k,v])=>`<button class="ftr ${k===filtro?'on':''}" onclick="rContratos('${k}')">${v}</button>`).join('')}</div>
+  ${lista.map(c=>`<div class="tarjeta tap" onclick="vContrato('${c.id}',()=>rContratos('${filtro}'))"><div class="fila">
+   <div class="izq"><div class="nom">${cli(c.cli).nom}</div><div class="det">${c.id} · ${tipoChip(c.tipo)} ${estChip(c.estado)}</div></div>
+   <div class="monto">${c.estado==='Activo'?S(saldo(c)):S(cobrado(c))}<small>${c.estado==='Activo'?'saldo':'retenido'}</small></div></div></div>`).join('')}
+  <button class="btn btn-linea" onclick="mNuevoContrato()">＋ Nuevo contrato</button>
+ </section>`;
+}
+
+function vContrato(id, origen){
+ if(origen) apilar(origen);
+ const c = con(id), k = cli(c.cli);
+ const pct = Math.round(c.pagadas/c.nCuotas*100);
+ let cuerpo = '';
+ if(c.tipo==='moto'){
+  const b = bien(c.bien);
+  cuerpo = `
+   <div class="tarjeta"><div class="fila"><div class="izq"><div class="nom">${b.desc}</div>
+    <div class="det">${b.id} · placa ${b.placa} · ciclo de venta Nº ${c.ciclo}</div></div>
+    <button class="btn btn-linea btn-mini" onclick="vBien('${b.id}',()=>vContrato('${id}'))">Ver bien</button></div></div>
+   <div class="aviso">⚠ Regla del contrato: si el cliente deja de pagar, el vehículo se recupera y los pagos realizados quedan a favor del negocio.</div>
+   <h3>Avance de pago diario</h3>
+   <div class="tarjeta">
+    <div class="reporte-linea"><span>Pago diario</span><span class="v">${S(c.cuota)}</span></div>
+    <div class="reporte-linea"><span>Días pagados</span><span class="v">${c.pagadas} de ${c.nCuotas}</span></div>
+    <div class="reporte-linea"><span>Cobrado</span><span class="v pos">${S(cobrado(c))}</span></div>
+    <div class="reporte-linea total"><span>${c.estado==='Activo'?'Saldo':'Monto retenido'}</span><span class="v">${c.estado==='Activo'?S(saldo(c)):S(cobrado(c))}</span></div>
+   </div>`;
+ } else {
+  const filas = (c.crono||[]).map(f=>`<tr><td>${f[0]}</td><td>${f[1]}</td><td class="num">${S(f[2])}</td><td class="${f[3]==='Pagada'?'pagada':'pendiente'}">${f[3]}</td></tr>`).join('');
+  cuerpo = `
+   ${c.tipo==='terreno'?`<div class="tarjeta"><div class="nom">${bien(c.bien).desc}</div><div class="det" style="color:var(--gris);font-size:12.5px">${bien(c.bien).placa} · crédito sin intereses (configuración del producto)</div></div>`:''}
+   <h3>Cronograma</h3>
+   <div class="tarjeta">
+    ${c.tipo==='terreno'?`<div class="reporte-linea"><span>Cuotas pagadas</span><span class="v">${c.pagadas} de ${c.nCuotas}</span></div>
+     <div class="reporte-linea"><span>Cuota mensual</span><span class="v">${S(c.cuota)}</span></div>
+     <div class="reporte-linea"><span>Próximo vencimiento</span><span class="v">${c.prox}</span></div>
+     <div class="reporte-linea total"><span>Saldo</span><span class="v">${S(saldo(c))}</span></div>`
+    :`<table class="tabla"><tr><th>Nº</th><th>Vence</th><th style="text-align:right">Cuota</th><th>Estado</th></tr>${filas}</table>`}
+   </div>
+   ${c.legal?`<div class="aviso">Al desembolso se registró <b>legalización de documentos: ${S(c.legal)}</b>. Este costo se descuenta de la ganancia en el reporte detallado.</div>`:''}`;
+ }
+ M.innerHTML = `<section class="screen activa">
+  <button class="volver" onclick="volver()">← Volver</button>
+  <h2>${c.id} ${tipoChip(c.tipo)}</h2>
+  <div class="sub">${k.nom} · inicio ${c.inicio} · ${estChip(c.estado)}</div>
+  <div class="kpis">
+   <div class="kpi"><div class="et">${c.tipo==='moto'?'Precio de venta':'Monto del crédito'}</div><div class="num">${S(c.monto)}</div></div>
+   <div class="kpi"><div class="et">Avance</div><div class="num">${pct}%</div></div>
+  </div>
+  ${cuerpo}
+  ${c.estado==='Activo'?`<button class="btn btn-verde" onclick="mPago('${id}')">Registrar pago de hoy</button>`:''}
+  ${c.estado==='Recuperado'?`<div class="aviso" style="background:var(--barro-suave);border-color:#E5C0B4;color:var(--barro)">Bien recuperado el ${c.fin}. Los ${S(cobrado(c))} pagados quedaron retenidos como ingreso, según contrato.</div>`:''}
+ </section>`;
+}
+
+function rBienes(){
+ M.innerHTML = `<section class="screen activa">
+  <h2>Bienes</h2><div class="sub">Motos y terrenos del negocio, con su historia completa</div>
+  ${BIENES.map(b=>{const ciclos=CONTRATOS.filter(c=>c.bien===b.id&&c.tipo==='moto').length;
+  return `<div class="tarjeta tap" onclick="vBien('${b.id}',rBienes)"><div class="fila">
+   <div class="izq"><div class="nom">${b.desc}</div><div class="det">${b.id} · ${b.placa}${ciclos?` · ${ciclos} ciclo(s) de venta`:''}</div></div>
+   <div>${estChip(b.estado)}</div></div></div>`}).join('')}
+ </section>`;
+}
+
+function vBien(id, origen){
+ if(origen) apilar(origen);
+ const b = bien(id);
+ const ciclos = CONTRATOS.filter(c=>c.bien===id&&c.tipo==='moto').sort((a,z)=>a.ciclo-z.ciclo);
+ const gastos = GASTOS.filter(g=>g.bien===id);
+ const totCobrado = ciclos.reduce((s,c)=>s+cobrado(c),0);
+ const totGastos = gastos.reduce((s,g)=>s+g.monto,0);
+ const neto = totCobrado - totGastos - b.costo;
+ M.innerHTML = `<section class="screen activa">
+  <button class="volver" onclick="volver()">← Volver</button>
+  <h2>${b.desc}</h2><div class="sub">${b.id} · ${b.placa} · ${estChip(b.estado)}</div>
+  ${ciclos.length?`
+  <h3>Rentabilidad real del vehículo</h3>
+  <div class="tarjeta">
+   <div class="reporte-linea"><span>Cobrado en ${ciclos.length} ciclos de venta</span><span class="v pos">${S(totCobrado)}</span></div>
+   <div class="reporte-linea"><span>(−) Reparaciones</span><span class="v neg">−${S(totGastos)}</span></div>
+   <div class="reporte-linea"><span>(−) Costo de adquisición</span><span class="v neg">−${S(b.costo)}</span></div>
+   <div class="reporte-linea total"><span>Resultado a la fecha</span><span class="v ${neto>=0?'pos':'neg'}">${S(neto)}</span></div>
+  </div>
+  <h3>Historia del bien · dueño actual: Nº ${Math.max(...ciclos.map(c=>c.ciclo))}</h3>
+  ${ciclos.slice().reverse().map(c=>`<div class="ciclo ${c.estado==='Activo'?'activo':'rec'}">
+    <div class="ct">Ciclo ${c.ciclo} — ${cli(c.cli).nom} ${estChip(c.estado)}</div>
+    <div class="cd">${c.inicio}${c.fin?' → '+c.fin:' → en curso'} · pagó ${c.pagadas} días · ${S(cobrado(c))}${c.estado==='Recuperado'?' retenidos':''}</div>
+   </div>`).join('')}
+  <h3>Gastos de reparación</h3>
+  ${gastos.map(g=>`<div class="tarjeta"><div class="fila"><div class="izq"><div class="nom" style="font-size:13.5px">${g.desc}</div><div class="det">${g.fecha} · tras ${g.con}</div></div><div class="monto neg">−${S(g.monto)}</div></div></div>`).join('')||'<div class="vacio">Sin gastos registrados</div>'}
+  <button class="btn btn-linea" onclick="demo('Aquí se registraría un nuevo gasto de reparación, vinculado al vehículo. Al terminar, el bien vuelve a estado DISPONIBLE y puede ofrecerse en un nuevo contrato con otro precio.')">＋ Registrar gasto de reparación</button>
+  `:`<div class="tarjeta"><div class="reporte-linea"><span>Costo de adquisición</span><span class="v">${S(b.costo)}</span></div><div class="reporte-linea"><span>Ciclos de venta</span><span class="v">0</span></div></div>`}
+ </section>`;
+}
+
+function rReportes(){
+ const prest = CONTRATOS.filter(c=>c.tipo==='prestamo');
+ const detalle = prest.map(c=>{
+  const intCobrado = Math.round(c.interesTotal/c.nCuotas*c.pagadas);
+  return {id:c.id, nom:cli(c.cli).nom, int:intCobrado, leg:c.legal, neto:intCobrado-c.legal};
+ });
+ const totInt = detalle.reduce((s,d)=>s+d.int,0), totLeg = detalle.reduce((s,d)=>s+d.leg,0);
+ const legTerr = GASTOS.filter(g=>g.con==='C-004').reduce((s,g)=>s+g.monto,0);
+ M.innerHTML = `<section class="screen activa" data-scr="reportes">
+  <h2>Reportes</h2><div class="sub">Periodo: últimos 12 meses (demo)</div>
+
+  <h3>Ganancia por intereses — detallado</h3>
+  <div class="tarjeta">
+   ${detalle.map(d=>`
+    <div class="reporte-linea" style="border-bottom:0;padding-bottom:2px"><span><b>${d.id}</b> · ${d.nom}</span><span></span></div>
+    <div class="reporte-linea" style="border-bottom:0;padding:2px 0 2px 12px"><span>Intereses cobrados</span><span class="v pos">${S(d.int)}</span></div>
+    <div class="reporte-linea" style="padding:2px 0 8px 12px"><span>(−) Legalización de documentos</span><span class="v neg">−${S(d.leg)}</span></div>`).join('')}
+   <div class="reporte-linea total"><span>Ganancia neta por intereses</span><span class="v pos">${S(totInt-totLeg)}</span></div>
+  </div>
+
+  <h3>Motos y terrenos</h3>
+  <div class="tarjeta">
+   <div class="reporte-linea"><span>Cobrado en ciclos de motos</span><span class="v pos">${S(8220+cobradoHoy*0)}</span></div>
+   <div class="reporte-linea"><span>(−) Reparaciones de vehículos</span><span class="v neg">−${S(530)}</span></div>
+   <div class="reporte-linea"><span>Cobrado en terrenos (sin interés)</span><span class="v">${S(4500)}</span></div>
+   <div class="reporte-linea"><span>(−) Legalización (terrenos)</span><span class="v neg">−${S(legTerr)}</span></div>
+   <div class="reporte-linea" style="border-bottom:0"><span style="color:var(--gris);font-size:12px">La rentabilidad neta por vehículo se ve en la ficha de cada bien.</span><span></span></div>
+  </div>
+
+  <h3>Cobranza de junio</h3>
+  <div class="tarjeta">
+   <div class="reporte-linea"><span>Cobrado en el mes</span><span class="v pos">${S(963+cobradoHoy)}</span></div>
+   <div class="reporte-linea"><span>Pendiente de hoy</span><span class="v">${S(Math.max(0,214-cobradoHoy))}</span></div>
+   <div class="reporte-linea total"><span>Puntualidad de pago</span><span class="v">94%</span></div>
+  </div>
+
+  <h3>Auditoría</h3>
+  ${rol==='superadmin' ? `
+   <div class="aviso">Registro de solo-escritura: ningún usuario, ni el superadministrador, puede modificar ni borrar estas entradas. Cada una queda encadenada por hash a la anterior.</div>
+   ${AUDITORIA.map(a=>`<div class="aud"><div class="acc">${a.acc}</div><div class="meta">${a.ts} · usuario: ${a.user} · ${a.det}</div><div class="hash">⛓ ${a.hash}</div></div>`).join('')}
+   <button class="btn btn-oro" onclick="demo('En la app real, esto generaría el reporte de auditoría en PDF (por rango de fechas, usuario o tipo de acción). Solo el superadministrador puede generarlo.')">Generar reporte de auditoría (PDF)</button>
+  ` : `
+   <div class="tarjeta candado"><div class="ic">🔒</div>
+   <b>Solo el superadministrador puede ver y generar el reporte de auditoría.</b><br>
+   <span style="font-size:12.5px">Toca el botón <b>ADMIN</b> arriba a la derecha para simular el cambio de rol.</span></div>
+  `}
+ </section>`;
+}
+
+/* ================= ACCIONES ================= */
+const velo = document.getElementById('velo'), modal = document.getElementById('modal');
+function cerrarModal(){ velo.classList.remove('abierto'); }
+function demo(msg){
+ modal.innerHTML = `<h3>Demostración</h3><p style="font-size:13.5px;color:var(--gris);margin-bottom:14px">${msg}</p>
+ <button class="btn btn-verde" onclick="cerrarModal()">Entendido</button>`;
+ velo.classList.add('abierto');
+}
+
+function mPago(id){
+ const c = con(id);
+ modal.innerHTML = `<h3>Registrar pago — ${id}</h3>
+  <div class="campo"><label>Cliente</label><input value="${cli(c.cli).nom}" readonly></div>
+  <div class="campo"><label>Monto (S/)</label><input id="inMonto" type="number" value="${c.cuota}" inputmode="decimal"></div>
+  <div class="campo"><label>Fecha</label><input value="${HOY}" readonly></div>
+  <button class="btn btn-verde" onclick="confirmarPago('${id}')">Confirmar y emitir comprobante</button>
+  <div style="height:8px"></div>
+  <button class="btn btn-linea" onclick="cerrarModal()">Cancelar</button>`;
+ velo.classList.add('abierto');
+}
+
+function confirmarPago(id){
+ const c = con(id);
+ const monto = parseFloat(document.getElementById('inMonto').value)||c.cuota;
+ cerrarModal();
+ c.pagadas += 1; cobradoHoy += monto;
+ if(c.prox===HOY) c.prox = c.tipo==='moto' ? '13/06/2026' : '27/06/2026';
+ if(c.crono){ const f = c.crono.find(x=>x[3]!=='Pagada'); if(f) f[3]='Pagada'; }
+ const n = 'REC-000'+(nextRec++);
+ const concepto = c.tipo==='moto' ? 'Pago diario · día '+c.pagadas : 'Cuota '+c.pagadas+' de '+c.nCuotas;
+ const rec = {n, con:id, monto, fecha:HOY, concepto};
+ COMPROBANTES.unshift(rec);
+ AUDITORIA.unshift({ts:HOY+' '+new Date().toTimeString().slice(0,5),user:rol,acc:'PAGO REGISTRADO',det:id+' · '+S(monto)+' · '+n,hash:(Math.random().toString(16).slice(2,8))+'…'+(Math.random().toString(16).slice(2,6))});
+ vComprobante(n, ()=>vContrato(id), true);
+}
+
+function vComprobante(n, origen, nuevo){
+ if(origen) apilar(origen);
+ const r = COMPROBANTES.find(x=>x.n===n), c = con(r.con), k = cli(c.cli);
+ M.innerHTML = `<section class="screen activa">
+  <button class="volver" onclick="volver()">← Volver</button>
+  <h2>${nuevo?'Pago registrado ✓':'Comprobante'}</h2>
+  <div class="sub">${nuevo?'Comprobante emitido automáticamente':'Regenerado desde los datos guardados (snapshot)'}</div>
+  <div class="comprobante"><div class="comp-in">
+   <div class="comp-cab"><div class="t">CRÉDITOS SELVA</div><div style="font-size:10.5px;color:var(--gris)">Yurimaguas · Loreto</div>
+   <div class="n">COMPROBANTE ${r.n}</div></div>
+   <div class="comp-l"><span>Fecha</span><span>${r.fecha}</span></div>
+   <div class="comp-l"><span>Cliente</span><span>${k.nom}</span></div>
+   <div class="comp-l"><span>DNI</span><span>${k.dni}</span></div>
+   <div class="comp-l"><span>Contrato</span><span>${r.con}</span></div>
+   <div class="comp-l"><span>Concepto</span><span>${r.concepto}</span></div>
+   <div class="comp-l"><span>Saldo restante</span><span>${S(Math.max(0,saldo(c)))}</span></div>
+   <div class="comp-tot"><span>MONTO PAGADO</span><span>${S(r.monto)}</span></div>
+   <div class="comp-pie">Documento interno de control de pagos<br>Generado al instante · no ocupa almacenamiento</div>
+  </div></div>
+  <button class="btn btn-verde" onclick="demo('En la app real, esto abriría WhatsApp con el PDF del comprobante listo para enviar al cliente.')">Compartir por WhatsApp</button>
+  <div style="height:8px"></div>
+  <button class="btn btn-linea" onclick="demo('En la app real, el PDF se genera en este momento en el teléfono y se descarga. No se guarda ningún archivo en el servidor: solo los datos.')">Descargar PDF</button>
+ </section>`;
+}
+
+function mNuevoContrato(){
+ modal.innerHTML = `<h3>Nuevo contrato (vista previa)</h3>
+  <div class="campo"><label>Tipo de producto</label><input value="Préstamo con interés ▾" readonly></div>
+  <div class="campo"><label>Cliente</label><input value="Buscar cliente…" readonly></div>
+  <div class="campo"><label>Monto (S/)</label><input value="2,000.00" readonly></div>
+  <label class="check"><input type="checkbox" checked> ¿Hubo pago por legalización de documentos?</label>
+  <div class="campo"><label>Monto de legalización (S/)</label><input value="50.00" readonly></div>
+  <div class="aviso" style="margin-bottom:14px">La legalización se registra como gasto del contrato y se descuenta de la ganancia en el reporte detallado.</div>
+  <button class="btn btn-verde" onclick="cerrarModal();demo('En la app real, aquí se generaría el contrato con su cronograma de cuotas automático.')">Desembolsar crédito</button>
+  <div style="height:8px"></div>
+  <button class="btn btn-linea" onclick="cerrarModal()">Cancelar</button>`;
+ velo.classList.add('abierto');
+}
+
+ir('inicio');
+</script>
+</body>
+</html>
