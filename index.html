@@ -241,8 +241,8 @@ const con = id => CONTRATOS.find(c=>c.id===id);
 const bien = id => BIENES.find(b=>b.id===id);
 const tipoChip = t => t==='prestamo' ? '<span class="chip c-prestamo">PRÉSTAMO</span>' : t==='moto' ? '<span class="chip c-moto">MOTO</span>' : '<span class="chip c-terreno">TERRENO</span>';
 const estChip = e => '<span class="chip c-'+e.toLowerCase().replace(' ','')+'">'+e.toUpperCase()+'</span>';
-const saldo = c => c.tipo==='moto' ? c.monto - c.pagadas*c.cuota : c.total - c.pagadas*c.cuota;
-const cobrado = c => c.pagadas*c.cuota;
+const saldo = c => (c.tipo==='moto' ? c.monto : c.total) - cobrado(c);
+const cobrado = c => c.pagadas*c.cuota + (c.parcial||0);
 const M = document.getElementById('main');
 let pila = [];
 
@@ -343,6 +343,8 @@ function vContrato(id, origen){
    <div class="tarjeta">
     <div class="reporte-linea"><span>Pago diario</span><span class="v">${S(c.cuota)}</span></div>
     <div class="reporte-linea"><span>Días pagados</span><span class="v">${c.pagadas} de ${c.nCuotas}</span></div>
+    ${c.parcial?`<div class="reporte-linea"><span>A cuenta (adelanto)</span><span class="v pos">${S(c.parcial)}</span></div>
+    <div class="reporte-linea"><span>Mañana paga solo</span><span class="v">${S(c.cuota-c.parcial)}</span></div>`:''}
     <div class="reporte-linea"><span>Cobrado</span><span class="v pos">${S(cobrado(c))}</span></div>
     <div class="reporte-linea total"><span>${c.estado==='Activo'?'Saldo':'Monto retenido'}</span><span class="v">${c.estado==='Activo'?S(saldo(c)):S(cobrado(c))}</span></div>
    </div>`;
@@ -478,6 +480,7 @@ function mPago(id){
  modal.innerHTML = `<h3>Registrar pago — ${id}</h3>
   <div class="campo"><label>Cliente</label><input value="${cli(c.cli).nom}" readonly></div>
   <div class="campo"><label>Monto (S/)</label><input id="inMonto" type="number" value="${c.cuota}" inputmode="decimal"></div>
+  <div class="aviso">Puede pagar más de la cuota: el excedente <b>adelanta las siguientes cuotas</b> en orden (no amortiza capital ni recalcula el cronograma). Ej.: cuota S/ 30, paga S/ 50 → mañana paga S/ 10.</div>
   <div class="campo"><label>Fecha</label><input value="${HOY}" readonly></div>
   <button class="btn btn-verde" onclick="confirmarPago('${id}')">Confirmar y emitir comprobante</button>
   <div style="height:8px"></div>
@@ -489,12 +492,22 @@ function confirmarPago(id){
  const c = con(id);
  const monto = parseFloat(document.getElementById('inMonto').value)||c.cuota;
  cerrarModal();
- c.pagadas += 1; cobradoHoy += monto;
- if(c.prox===HOY) c.prox = c.tipo==='moto' ? '13/06/2026' : '27/06/2026';
- if(c.crono){ const f = c.crono.find(x=>x[3]!=='Pagada'); if(f) f[3]='Pagada'; }
+ const total = (c.parcial||0) + monto;
+ const nuevas = Math.floor(total / c.cuota);
+ c.pagadas += nuevas;
+ c.parcial = Math.round((total - nuevas*c.cuota)*100)/100;
+ cobradoHoy += monto;
+ if(nuevas>0 && c.prox===HOY) c.prox = c.tipo==='moto' ? '13/06/2026' : '27/06/2026';
+ if(c.crono){ for(let i=0;i<nuevas;i++){ const f = c.crono.find(x=>x[3]!=='Pagada'); if(f) f[3]='Pagada'; } }
  const n = 'REC-000'+(nextRec++);
- const concepto = c.tipo==='moto' ? 'Pago diario · día '+c.pagadas : 'Cuota '+c.pagadas+' de '+c.nCuotas;
- const rec = {n, con:id, monto, fecha:HOY, concepto};
+ let concepto;
+ if(c.tipo==='moto'){
+  concepto = nuevas===0 ? 'Abono a cuenta del día '+(c.pagadas+1)
+   : nuevas===1 ? 'Pago diario · día '+c.pagadas : 'Días '+(c.pagadas-nuevas+1)+' al '+c.pagadas+' (adelanto)';
+ } else {
+  concepto = nuevas<=1 ? 'Cuota '+c.pagadas+' de '+c.nCuotas : 'Cuotas '+(c.pagadas-nuevas+1)+' a '+c.pagadas+' (adelanto)';
+ }
+ const rec = {n, con:id, monto, fecha:HOY, concepto, adelanto:c.parcial||0, sigCuota:c.parcial?Math.round((c.cuota-c.parcial)*100)/100:null};
  COMPROBANTES.unshift(rec);
  AUDITORIA.unshift({ts:HOY+' '+new Date().toTimeString().slice(0,5),user:rol,acc:'PAGO REGISTRADO',det:id+' · '+S(monto)+' · '+n,hash:(Math.random().toString(16).slice(2,8))+'…'+(Math.random().toString(16).slice(2,6))});
  vComprobante(n, ()=>vContrato(id), true);
@@ -515,6 +528,8 @@ function vComprobante(n, origen, nuevo){
    <div class="comp-l"><span>DNI</span><span>${k.dni}</span></div>
    <div class="comp-l"><span>Contrato</span><span>${r.con}</span></div>
    <div class="comp-l"><span>Concepto</span><span>${r.concepto}</span></div>
+   ${r.adelanto?`<div class="comp-l"><span>A cuenta de la sig. cuota</span><span>${S(r.adelanto)}</span></div>
+   <div class="comp-l"><span>Próximo pago será</span><span>${S(r.sigCuota)}</span></div>`:''}
    <div class="comp-l"><span>Saldo restante</span><span>${S(Math.max(0,saldo(c)))}</span></div>
    <div class="comp-tot"><span>MONTO PAGADO</span><span>${S(r.monto)}</span></div>
    <div class="comp-pie">Documento interno de control de pagos<br>Generado al instante · no ocupa almacenamiento</div>
